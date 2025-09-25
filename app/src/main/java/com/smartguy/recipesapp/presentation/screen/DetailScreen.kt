@@ -1,7 +1,6 @@
 package com.smartguy.recipesapp.presentation.screen
 
 import android.R
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -20,7 +18,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -28,24 +25,18 @@ import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.outlined.AccessTime // Changed from Timer for a common icon
-import androidx.compose.material.icons.outlined.AttachMoney
+import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Group // Changed from People for a common icon
-import androidx.compose.material.icons.outlined.LocalGroceryStore
-import androidx.compose.material.icons.outlined.Restaurant // Example, you might need a better icon
+import androidx.compose.material.icons.outlined.Group
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -73,7 +64,6 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.smartguy.recipesapp.data.model.Ingredient
 import com.smartguy.recipesapp.data.model.Recipe
-import com.smartguy.recipesapp.data.model.Step
 import com.smartguy.recipesapp.presentation.viewmodel.DetailViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -94,8 +84,7 @@ fun DetailScreen(
             TopAppBar(
                 title = {
                     Text(
-                        // uiState.recipe?.title ?: "Recipe Details", // You can make title dynamic
-                        "Recipe Details",
+                        text = "Recipe Details",
                         fontWeight = FontWeight.Bold
                     )
                 },
@@ -108,7 +97,7 @@ fun DetailScreen(
                     }
                 },
                 actions = {
-                    uiState.recipe?.let { // Show favorite only if recipe is loaded
+                    uiState.recipe?.let {
                         IconButton(
                             onClick = { viewModel.toggleFavorite(recipeId) }
                         ) {
@@ -117,7 +106,7 @@ fun DetailScreen(
                                 else Icons.Outlined.FavoriteBorder,
                                 contentDescription = "Favorite",
                                 tint = if (uiState.isFavorite) Color.Red
-                                else MaterialTheme.colorScheme.onPrimary // Adjusted for top app bar
+                                else MaterialTheme.colorScheme.onPrimary
                             )
                         }
                     }
@@ -156,7 +145,7 @@ fun DetailScreen(
                     recipe = uiState.recipe!!,
                     showSummaryExpanded = showSummaryExpanded,
                     onSummaryExpandToggle = { showSummaryExpanded = !showSummaryExpanded },
-                    modifier = Modifier.padding(paddingValues) // Pass paddingValues here
+                    modifier = Modifier.padding(paddingValues)
                 )
             }
         }
@@ -168,20 +157,20 @@ fun RecipeDetailsContent(
     recipe: Recipe,
     showSummaryExpanded: Boolean,
     onSummaryExpandToggle: () -> Unit,
-    modifier: Modifier = Modifier // This modifier will now include padding from Scaffold
+    modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize() // Use the passed modifier
+        modifier = modifier.fillMaxSize()
     ) {
-        // --- Image Section ---
+        // Изображение рецепта
         item {
-            Box(modifier = Modifier.fillMaxWidth()) { // Use Box for potential overlay positioning
+            Box(modifier = Modifier.fillMaxWidth()) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp), // More rounded corners
+                    shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // White background
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                 ) {
                     AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
@@ -192,7 +181,7 @@ fun RecipeDetailsContent(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp), // Adjusted height
+                            .height(300.dp),
                         placeholder = painterResource(R.drawable.ic_menu_gallery),
                         error = painterResource(R.drawable.ic_menu_gallery)
                     )
@@ -200,14 +189,14 @@ fun RecipeDetailsContent(
             }
         }
 
-        // --- Title and Basic Info Overlay ---
+        // Заголовок и основная информация
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
                     .offset(y = (-60).dp),
-                shape = RoundedCornerShape(24.dp), // More rounded corners
+                shape = RoundedCornerShape(24.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface
@@ -215,31 +204,31 @@ fun RecipeDetailsContent(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 20.dp) // Increased padding
+                        .padding(horizontal = 20.dp, vertical = 20.dp)
                         .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally // Center title
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = recipe.title,
                         style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurface // Black text
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally), // Space out and center
+                        horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RecipeInfoItem(
-                            icon = Icons.Outlined.Group, // Changed icon
+                            icon = Icons.Outlined.Group,
                             label = "${recipe.servings ?: 0} Persons"
                         )
 
                         RecipeInfoItem(
-                            icon = Icons.Outlined.AccessTime, // Changed icon
+                            icon = Icons.Outlined.AccessTime,
                             label = "${recipe.readyInMinutes ?: 0} Minutes"
                         )
                     }
@@ -247,7 +236,7 @@ fun RecipeDetailsContent(
             }
         }
 
-        // --- Recipe Summary Section ---
+        // Краткое описание рецепта
         item {
             Card(
                 modifier = Modifier
@@ -282,18 +271,18 @@ fun RecipeDetailsContent(
                             text = "Recipe Summary",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant // Darker text on lighter bg
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         IconButton(
                             onClick = onSummaryExpandToggle,
-                            modifier = Modifier.size(32.dp) // Slightly larger icon button
+                            modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
                                 modifier = Modifier.size(50.dp),
                                 imageVector = if (showSummaryExpanded) Icons.Default.KeyboardArrowUp
                                 else Icons.Default.KeyboardArrowDown,
                                 contentDescription = if (showSummaryExpanded) "Collapse" else "Expand",
-                                tint = MaterialTheme.colorScheme.primary // Keep primary color for icon
+                                tint = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -302,7 +291,7 @@ fun RecipeDetailsContent(
 
                     if (showSummaryExpanded) {
 
-                        val htmlRegex = "</?[^>]+(>|\$)".toRegex()
+                        val htmlRegex = "</?[^>]+(>|$)".toRegex()
                         val cleanSummary = recipe.summary?.replace(htmlRegex, "") ?: "No summary available."
 
                         Spacer(modifier = Modifier.height(8.dp))
@@ -319,14 +308,14 @@ fun RecipeDetailsContent(
         }
 
 
-        // --- Ingredients Section ---
+        // Секция: Ингредиенты
         if (recipe.extendedIngredients.isNotEmpty()) {
             item {
                 Text(
                     text = "Ingredients",
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.onSurface // Black text
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -342,23 +331,23 @@ fun RecipeDetailsContent(
 fun RecipeInfoItem(
     icon: ImageVector,
     label: String,
-    modifier: Modifier = Modifier // Added modifier
+    modifier: Modifier = Modifier
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp), // Slightly more space
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
         modifier = modifier
     ) {
         Icon(
             icon,
-            contentDescription = null, // Content description can be label itself if needed for accessibility
-            modifier = Modifier.size(20.dp), // Adjusted size to match image
-            tint = MaterialTheme.colorScheme.onSurfaceVariant // Greyish tint
+            contentDescription = null,
+            modifier = Modifier.size(20.dp),
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant // Greyish text
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -366,27 +355,27 @@ fun RecipeInfoItem(
 @Composable
 fun IngredientItem(
     ingredient: Ingredient,
-    modifier: Modifier = Modifier // Added modifier
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier // Use the passed modifier for padding
+        modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp), // Padding only vertical, horizontal is handled by parent
+            .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(52.dp) // Slightly larger
-                .clip(RoundedCornerShape(12.dp)) // More rounded
+                .size(52.dp)
+                .clip(RoundedCornerShape(12.dp))
                 .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)),
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
                 model = "https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}",
                 contentDescription = ingredient.name,
-                modifier = Modifier.size(36.dp), // Adjusted size
-                placeholder = painterResource(id = R.drawable.picture_frame), // Generic placeholder
-                error = painterResource(id = R.drawable.stat_notify_error) // Generic error
+                modifier = Modifier.size(36.dp),
+                placeholder = painterResource(id = R.drawable.picture_frame),
+                error = painterResource(id = R.drawable.stat_notify_error)
             )
         }
 
@@ -394,24 +383,16 @@ fun IngredientItem(
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
-                text = ingredient.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }, // Capitalize
+                text = ingredient.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
                 style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = ingredient.original, // You might want to format this better
+                text = ingredient.original,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-
-        // Removed the explicit amount and unit display here as the image seems to omit it for a cleaner look
-        // If you need it, you can add it back:
-        // Text(
-        // text = "${ingredient.amount.toPrettyString()} ${ingredient.unit}",
-        // style = MaterialTheme.typography.bodyMedium,
-        // color = MaterialTheme.colorScheme.primary
-        // )
     }
 }
 
@@ -421,20 +402,20 @@ fun IngredientsList(ingredients: List<Ingredient>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp) // Padding horizontal pour la section
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = "Ingredients",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            fontSize = 18.sp, // Taille comme sur l'image
-            modifier = Modifier.padding(bottom = 12.dp, top = 16.dp) // Espacement autour du titre
+            fontSize = 18.sp,
+            modifier = Modifier.padding(bottom = 12.dp, top = 16.dp)
         )
         if (ingredients.isNotEmpty()) {
             // Utiliser LazyColumn si la liste peut être longue
             LazyColumn(
-                contentPadding = PaddingValues(bottom = 16.dp), // Espace en bas de la liste
-                verticalArrangement = Arrangement.spacedBy(4.dp) // Espace entre les items
+                contentPadding = PaddingValues(bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 items(ingredients) { ingredient ->
                     IngredientItem(ingredient = ingredient)

@@ -50,7 +50,7 @@ class RecipeRepository @Inject constructor(
     }
 
     // Поиск рецептов
-    suspend fun searchRecipes(
+    fun searchRecipes(
         query: String,
         number: Int = 20,
         offset: Int = 0
@@ -81,7 +81,7 @@ class RecipeRepository @Inject constructor(
                     )
                     emit(Result.success(response))
                 }
-            } catch (cacheError: Exception) {
+            } catch (e: Exception) {
                 emit(Result.failure(e))
             }
         }

@@ -1,6 +1,5 @@
 package com.smartguy.recipesapp.presentation.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.smartguy.recipesapp.data.model.Recipe
@@ -15,10 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val repository: RecipeRepository,
-    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-
-    // Получаем ID рецепта из навигационных аргументов
 
     // Состояние экрана деталей
     private val _uiState = MutableStateFlow(DetailUiState())
