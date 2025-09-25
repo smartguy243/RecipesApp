@@ -1,6 +1,6 @@
 package com.smartguy.recipesapp.di
 
-import com.example.recipes.BuildConfig
+import com.smartguy.recipesapp.BuildConfig
 import com.smartguy.recipesapp.data.network.ApiKeyInterceptor
 import com.smartguy.recipesapp.data.network.SpoonacularApi
 import dagger.Module
