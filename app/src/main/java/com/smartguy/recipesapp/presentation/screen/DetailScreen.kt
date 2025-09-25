@@ -263,7 +263,9 @@ fun RecipeDetailsContent(
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f)),
+                                .background(
+                                    if (showSummaryExpanded) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f)
+                                else Color.Unspecified),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
@@ -288,6 +290,8 @@ fun RecipeDetailsContent(
                                 )
                             }
                         }
+
+                        Spacer(modifier = Modifier.height(5.dp))
 
                         if (showSummaryExpanded) {
 

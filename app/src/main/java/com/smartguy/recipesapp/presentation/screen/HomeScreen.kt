@@ -2,6 +2,7 @@ package com.smartguy.recipesapp.presentation.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -65,6 +66,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -165,12 +167,12 @@ fun HomeScreen(
                         text = buildAnnotatedString {
                             withStyle(
                                 style = SpanStyle(
-                                    color = Color.Black, // Or MaterialTheme.colorScheme.onBackground for theme-awareness
+                                    color = if (isSystemInDarkTheme()) Color.White else Color.Black,
                                     fontSize = 24.sp,
                                     fontWeight = FontWeight.Bold
                                 )
                             ) {
-                                append("Hello ") // Add a space if you want one between "Hello" and "Foodie!"
+                                append("Hello ")
                             }
                             withStyle(
                                 style = SpanStyle(
@@ -232,7 +234,7 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(25.dp))
 
                 // Заголовок секции
                 Text(
@@ -242,7 +244,7 @@ fun HomeScreen(
                     modifier = Modifier.padding(horizontal = 20.dp)
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // Контент
                 when {
@@ -314,7 +316,7 @@ fun SearchBar(
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         ),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(15.dp),
         modifier = Modifier.fillMaxWidth(),
         singleLine = true,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
