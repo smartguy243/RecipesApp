@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -173,19 +174,27 @@ fun RecipeDetailsContent(
         // --- Image Section ---
         item {
             Box(modifier = Modifier.fillMaxWidth()) { // Use Box for potential overlay positioning
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(recipe.image)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = recipe.title,
-                    contentScale = ContentScale.Crop,
+                Card(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp), // Adjusted height
-                    placeholder = painterResource(R.drawable.ic_menu_gallery),
-                    error = painterResource(R.drawable.ic_menu_gallery)
-                )
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp), // More rounded corners
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // White background
+                ) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(recipe.image)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = recipe.title,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp), // Adjusted height
+                        placeholder = painterResource(R.drawable.ic_menu_gallery),
+                        error = painterResource(R.drawable.ic_menu_gallery)
+                    )
+                }
             }
         }
 
@@ -194,8 +203,8 @@ fun RecipeDetailsContent(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .offset(y = (-50).dp), // Negative offset to pull it up over the image
+                    .padding(horizontal = 20.dp)
+                    .offset(y = (-60).dp),
                 shape = RoundedCornerShape(24.dp), // More rounded corners
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // White background
@@ -236,33 +245,34 @@ fun RecipeDetailsContent(
 
         // --- Recipe Summary Section ---
         item {
-            // Spacer to create some distance from the overlaid card, adjust as needed
-            Spacer(modifier = Modifier.height(8.dp)) // Reduced space because of negative offset
-
-            if (!recipe.summary.isNullOrEmpty()) {
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f) // Lighter background
-                    )
+                        .padding(horizontal = 16.dp, vertical = 5.dp)
+                        .offset(y = (-45).dp),
+                    shape = RoundedCornerShape(8.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .animateContentSize() // Keep animation
                             .padding(horizontal = 16.dp, vertical = 12.dp)
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
+
                     ) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f)),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
+                                modifier = Modifier
+                                    .padding(start = 80.dp),
                                 text = "Recipe Summary",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant // Darker text on lighter bg
                             )
                             IconButton(
@@ -270,6 +280,7 @@ fun RecipeDetailsContent(
                                 modifier = Modifier.size(32.dp) // Slightly larger icon button
                             ) {
                                 Icon(
+                                    modifier = Modifier.size(50.dp),
                                     imageVector = if (showSummaryExpanded) Icons.Default.KeyboardArrowUp
                                     else Icons.Default.KeyboardArrowDown,
                                     contentDescription = if (showSummaryExpanded) "Collapse" else "Expand",
@@ -281,14 +292,13 @@ fun RecipeDetailsContent(
                         if (showSummaryExpanded) {
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = recipe.summary.replace(Regex("<[^>]*>"), ""), // Basic HTML removal
+                                text = recipe.summary ?: "",
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 }
-            }
         }
 
 
