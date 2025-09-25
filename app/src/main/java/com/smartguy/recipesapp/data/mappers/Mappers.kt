@@ -10,7 +10,8 @@ fun Recipe.toEntity(): RecipeEntity = RecipeEntity(
     servings = this.servings,
     readyInMinutes = this.readyInMinutes,
     likes = this.aggregateLikes,
-    glutenFree = this.glutenFree
+    glutenFree = this.glutenFree,
+    summary = this.summary
     )
 
 
@@ -21,5 +22,6 @@ fun RecipeEntity.toRecipe(): Recipe = Recipe(
     servings = this.servings,
     readyInMinutes = this.readyInMinutes,
     aggregateLikes = this.likes ?: 0,
-    glutenFree = this.glutenFree == true
+    glutenFree = this.glutenFree == true,
+    summary = this.summary ?: ""
 )

@@ -12,5 +12,6 @@ data class RecipeEntity (
     val servings: Int? = null,
     val readyInMinutes: Int? = null,
     val likes: Int? =  null,
-    val glutenFree: Boolean? = null
+    val glutenFree: Boolean? = null,
+    val summary: String? = null
 )

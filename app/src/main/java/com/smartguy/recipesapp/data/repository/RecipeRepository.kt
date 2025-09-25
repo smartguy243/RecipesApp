@@ -127,7 +127,8 @@ class RecipeRepository @Inject constructor(
                             servings = cached.servings,
                             readyInMinutes = cached.readyInMinutes,
                             aggregateLikes = cached.likes ?: 0,
-                            glutenFree = cached.glutenFree ?: false
+                            glutenFree = cached.glutenFree ?: false,
+                            summary = cached.summary ?: ""
                         )
                     )
                 } else {
@@ -146,7 +147,8 @@ class RecipeRepository @Inject constructor(
                         servings = cached.servings,
                         readyInMinutes = cached.readyInMinutes,
                         aggregateLikes = cached.likes ?: 0,
-                        glutenFree = cached.glutenFree ?: false
+                        glutenFree = cached.glutenFree ?: false,
+                        summary = cached.summary ?: ""
                     )
                 )
             } else {
