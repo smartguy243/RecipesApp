@@ -9,11 +9,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.recipes"
+    namespace = "com.smartguy.recipesapp"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.recipes"
+        applicationId = "com.smartguy.recipesapp"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
