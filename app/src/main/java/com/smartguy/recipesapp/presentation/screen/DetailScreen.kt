@@ -290,9 +290,15 @@ fun RecipeDetailsContent(
                         }
 
                         if (showSummaryExpanded) {
+
+                            val htmlRegex = "</?[^>]+(>|\$)".toRegex()
+                            val cleanSummary = recipe.summary?.replace(htmlRegex, "") ?: "No summary available."
+
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = recipe.summary ?: "",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Justify,
+                                text = cleanSummary,
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -432,10 +438,6 @@ fun IngredientItem(
     }
 }
 
-
-// --- Keep or Refactor Other Composables (StepItem, NutritionSection, etc.) as needed ---
-// For brevity, I'll keep them as they are, but you might want to adjust their styling too.
-
 @Composable
 fun StepItem(step: Step, modifier: Modifier = Modifier) {
     Card(
@@ -475,22 +477,6 @@ fun StepItem(step: Step, modifier: Modifier = Modifier) {
         }
     }
 }
-
-// You would also update NutritionSection, RecipeTags, RecipeAdditionalInfo similarly if you use them.
-// For example, removing Cards if they are not needed or changing their appearance.
-
-@Composable
-fun RecipeTags(recipe: Recipe, modifier: Modifier = Modifier) {
-    // ... (keep your existing RecipeTags or redesign it)
-    // The image doesn't show tags prominently, so you might reconsider their placement or style
-}
-
-@Composable
-fun RecipeAdditionalInfo(recipe: Recipe, modifier: Modifier = Modifier) {
-    // ... (keep your existing RecipeAdditionalInfo or redesign it)
-    // Similarly, the image doesn't focus on this, adjust as needed.
-}
-
 
 @Composable
 fun NutritionSection(nutrition: com.smartguy.recipesapp.data.model.Nutrition, modifier: Modifier = Modifier) {
