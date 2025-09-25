@@ -3,9 +3,11 @@ package com.smartguy.recipesapp.presentation.screen
 import android.R
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
@@ -207,7 +209,9 @@ fun RecipeDetailsContent(
                     .offset(y = (-60).dp),
                 shape = RoundedCornerShape(24.dp), // More rounded corners
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // White background
+                colors = CardDefaults.cardColors(
+                    containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface
+                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f))
             ) {
                 Column(
                     modifier = Modifier
@@ -245,70 +249,73 @@ fun RecipeDetailsContent(
 
         // --- Recipe Summary Section ---
         item {
-                Card(
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 5.dp)
+                    .offset(y = (-45).dp),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 5.dp)
-                        .offset(y = (-45).dp),
-                    shape = RoundedCornerShape(8.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
+
                 ) {
-                    Column(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 12.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
-
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    if (showSummaryExpanded) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f)
-                                else Color.Unspecified),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .padding(start = 80.dp),
-                                text = "Recipe Summary",
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant // Darker text on lighter bg
-                            )
-                            IconButton(
-                                onClick = onSummaryExpandToggle,
-                                modifier = Modifier.size(32.dp) // Slightly larger icon button
-                            ) {
-                                Icon(
-                                    modifier = Modifier.size(50.dp),
-                                    imageVector = if (showSummaryExpanded) Icons.Default.KeyboardArrowUp
-                                    else Icons.Default.KeyboardArrowDown,
-                                    contentDescription = if (showSummaryExpanded) "Collapse" else "Expand",
-                                    tint = MaterialTheme.colorScheme.primary // Keep primary color for icon
+                            .background(
+                                if (showSummaryExpanded) MaterialTheme.colorScheme.surfaceVariant.copy(
+                                    alpha = 1f
                                 )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(5.dp))
-
-                        if (showSummaryExpanded) {
-
-                            val htmlRegex = "</?[^>]+(>|\$)".toRegex()
-                            val cleanSummary = recipe.summary?.replace(htmlRegex, "") ?: "No summary available."
-
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                modifier = Modifier.fillMaxWidth(),
-                                textAlign = TextAlign.Justify,
-                                text = cleanSummary,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                else Color.Unspecified
+                            ),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(start = 80.dp),
+                            text = "Recipe Summary",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant // Darker text on lighter bg
+                        )
+                        IconButton(
+                            onClick = onSummaryExpandToggle,
+                            modifier = Modifier.size(32.dp) // Slightly larger icon button
+                        ) {
+                            Icon(
+                                modifier = Modifier.size(50.dp),
+                                imageVector = if (showSummaryExpanded) Icons.Default.KeyboardArrowUp
+                                else Icons.Default.KeyboardArrowDown,
+                                contentDescription = if (showSummaryExpanded) "Collapse" else "Expand",
+                                tint = MaterialTheme.colorScheme.primary // Keep primary color for icon
                             )
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(5.dp))
+
+                    if (showSummaryExpanded) {
+
+                        val htmlRegex = "</?[^>]+(>|\$)".toRegex()
+                        val cleanSummary = recipe.summary?.replace(htmlRegex, "") ?: "No summary available."
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Justify,
+                            text = cleanSummary,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
+            }
         }
 
 
@@ -323,43 +330,9 @@ fun RecipeDetailsContent(
                 )
             }
 
-            items(recipe.extendedIngredients) { ingredient ->
-                IngredientItem(ingredient, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-            }
-        }
-
-        // --- Instructions Section ---
-        if (recipe.analyzedInstructions.isNotEmpty()) {
             item {
-                Text(
-                    text = "Instructions",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                IngredientsList(ingredients = recipe.extendedIngredients)
             }
-            recipe.analyzedInstructions.forEach { instruction ->
-                items(instruction.steps) { step ->
-                    StepItem(step, modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp))
-                }
-            }
-        }
-
-        // --- Nutrition Section (Optional, if you want to keep it) ---
-        recipe.nutrition?.let { nutrition ->
-            item {
-                NutritionSection(nutrition, modifier = Modifier.padding(top = 16.dp))
-            }
-        }
-
-        // --- Dietary Tags & Additional Info (Consider where to best place these or if they are still needed) ---
-        // item { RecipeTags(recipe, modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp)) }
-        // item { RecipeAdditionalInfo(recipe, modifier = Modifier.padding(16.dp)) }
-
-
-        // Bottom Spacer
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 }
@@ -442,128 +415,37 @@ fun IngredientItem(
     }
 }
 
-@Composable
-fun StepItem(step: Step, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier
-            .fillMaxWidth(),
-        // .padding(horizontal = 16.dp, vertical = 4.dp), // Padding handled by LazyColumn item
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface // Or surfaceVariant for less emphasis
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp) // Flat look
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 10.dp) // Adjusted padding
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp) // Slightly smaller
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "${step.number}",
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = step.step,
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
 
 @Composable
-fun NutritionSection(nutrition: com.smartguy.recipesapp.data.model.Nutrition, modifier: Modifier = Modifier) {
+fun IngredientsList(ingredients: List<Ingredient>) {
     Column(
-        modifier = modifier.padding(horizontal = 16.dp, vertical = 8.dp) // Added vertical padding
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp) // Padding horizontal pour la section
     ) {
         Text(
-            text = "Nutrition Information",
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-            modifier = Modifier.padding(bottom = 12.dp),
-            color = MaterialTheme.colorScheme.onSurface
+            text = "Ingredients",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp, // Taille comme sur l'image
+            modifier = Modifier.padding(bottom = 12.dp, top = 16.dp) // Espacement autour du titre
         )
-
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-            ),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp) // Increased padding
+        if (ingredients.isNotEmpty()) {
+            // Utiliser LazyColumn si la liste peut être longue
+            LazyColumn(
+                contentPadding = PaddingValues(bottom = 16.dp), // Espace en bas de la liste
+                verticalArrangement = Arrangement.spacedBy(4.dp) // Espace entre les items
             ) {
-                // To match the image, you might only show a few key nutrients or none at all
-                nutrition.nutrients.take(4).forEach { nutrient -> // Show fewer nutrients
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = nutrient.name,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "${nutrient.amount.toInt()} ${nutrient.unit}", // Simplified amount
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
-                    HorizontalDivider(thickness = 0.5.dp, color = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f))
-                }
-
-                nutrition.caloricBreakdown?.let { breakdown ->
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = "Caloric Breakdown",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                        modifier = Modifier.padding(bottom = 8.dp),
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround // Use SpaceAround for better distribution
-                    ) {
-                        CaloricBreakdownItem("Protein", breakdown.percentProtein)
-                        CaloricBreakdownItem("Fat", breakdown.percentFat)
-                        CaloricBreakdownItem("Carbs", breakdown.percentCarbs)
-                    }
+                items(ingredients) { ingredient ->
+                    IngredientItem(ingredient = ingredient)
                 }
             }
+        } else {
+            Text("No ingredients listed for this recipe.")
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
-
-@Composable
-private fun CaloricBreakdownItem(label: String, percentage: Double) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = "${percentage.toInt()}%",
-            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
-            color = MaterialTheme.colorScheme.primary
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
 
 @Composable
 fun ErrorMessage(
