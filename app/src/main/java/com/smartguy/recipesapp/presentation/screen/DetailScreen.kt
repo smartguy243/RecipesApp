@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -62,7 +63,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.smartguy.recipesapp.data.model.Ingredient
+import com.smartguy.recipesapp.data.model.IngredientItem
 import com.smartguy.recipesapp.data.model.Recipe
 import com.smartguy.recipesapp.presentation.viewmodel.DetailViewModel
 
@@ -143,6 +144,7 @@ fun DetailScreen(
             uiState.recipe != null -> {
                 RecipeDetailsContent(
                     recipe = uiState.recipe!!,
+                    ingredients = uiState.ingredients,
                     showSummaryExpanded = showSummaryExpanded,
                     onSummaryExpandToggle = { showSummaryExpanded = !showSummaryExpanded },
                     modifier = Modifier.padding(paddingValues)
@@ -157,10 +159,12 @@ fun RecipeDetailsContent(
     recipe: Recipe,
     showSummaryExpanded: Boolean,
     onSummaryExpandToggle: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    ingredients: List<IngredientItem>
 ) {
     LazyColumn(
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(bottom = 16.dp)
     ) {
         // Изображение рецепта
         item {
@@ -182,6 +186,7 @@ fun RecipeDetailsContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(300.dp),
+                        // Remplacez par vos propres ressources drawable
                         placeholder = painterResource(R.drawable.ic_menu_gallery),
                         error = painterResource(R.drawable.ic_menu_gallery)
                     )
@@ -200,7 +205,8 @@ fun RecipeDetailsContent(
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 colors = CardDefaults.cardColors(
                     containerColor = if (!isSystemInDarkTheme()) MaterialTheme.colorScheme.surface
-                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f))
+                    else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 1f)
+                )
             ) {
                 Column(
                     modifier = Modifier
@@ -218,7 +224,10 @@ fun RecipeDetailsContent(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally),
+                        horizontalArrangement = Arrangement.spacedBy(
+                            32.dp,
+                            Alignment.CenterHorizontally
+                        ),
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -236,7 +245,7 @@ fun RecipeDetailsContent(
             }
         }
 
-        // Краткое описание рецепта
+        // Краткое описание рецепта и Ингредиенты
         item {
             Card(
                 modifier = Modifier
@@ -250,24 +259,22 @@ fun RecipeDetailsContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp, vertical = 12.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.1f))
-
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .background(
-                                if (showSummaryExpanded) MaterialTheme.colorScheme.surfaceVariant.copy(
-                                    alpha = 1f
-                                )
+                                if (showSummaryExpanded) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.2f)
                                 else Color.Unspecified
-                            ),
+                            )
+                            .padding(vertical = 4.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             modifier = Modifier
-                                .padding(start = 80.dp),
+                                .weight(1f)
+                                .padding(start = 16.dp),
                             text = "Recipe Summary",
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.titleMedium.copy(fontSize = 20.sp),
@@ -278,7 +285,6 @@ fun RecipeDetailsContent(
                             modifier = Modifier.size(32.dp)
                         ) {
                             Icon(
-                                modifier = Modifier.size(50.dp),
                                 imageVector = if (showSummaryExpanded) Icons.Default.KeyboardArrowUp
                                 else Icons.Default.KeyboardArrowDown,
                                 contentDescription = if (showSummaryExpanded) "Collapse" else "Expand",
@@ -287,10 +293,7 @@ fun RecipeDetailsContent(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(5.dp))
-
                     if (showSummaryExpanded) {
-
                         val htmlRegex = "</?[^>]+(>|$)".toRegex()
                         val cleanSummary = recipe.summary?.replace(htmlRegex, "") ?: "No summary available."
 
@@ -302,25 +305,51 @@ fun RecipeDetailsContent(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
                 }
             }
         }
-
-
-        // Секция: Ингредиенты
-        if (recipe.extendedIngredients.isNotEmpty()) {
+        if (ingredients.isNotEmpty()) {
             item {
-                Text(
-                    text = "Ingredients",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 12.dp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
+                Column(modifier= Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Ingredients",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                        modifier = Modifier
+                            .padding(
+                                start = 150.dp,
+                                end = 20.dp,
+                                top = 15.dp,
+                                bottom = 15.dp
+                            )
+                            .offset(y = (-40).dp),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
             }
 
+            items(ingredients) { ingredient ->
+                IngredientRow(
+                    ingredient = ingredient,
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .offset(y = (-40).dp)
+                )
+            }
+        } else  {
             item {
-                IngredientsList(ingredients = recipe.extendedIngredients)
+                Column(modifier= Modifier.fillMaxWidth()) {
+                    Text(
+                        text= "No ingredients listed for this recipe.",
+                        textAlign = TextAlign.Center,
+                        fontSize = 18.sp,
+                        modifier = Modifier
+                            .padding(start = 55.dp, end = 20.dp, top = 15.dp, bottom = 15.dp)
+                            .offset(y = (70).dp)
+                    )
+                }
             }
         }
     }
@@ -351,82 +380,45 @@ fun RecipeInfoItem(
         )
     }
 }
-
 @Composable
-fun IngredientItem(
-    ingredient: Ingredient,
-    modifier: Modifier = Modifier
-) {
+fun IngredientRow(ingredient: IngredientItem, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Box(
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data("https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}")
+                .crossfade(true)
+                .build(),
+            contentDescription = ingredient.name,
             modifier = Modifier
-                .size(52.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.5f)),
-            contentAlignment = Alignment.Center
-        ) {
-            AsyncImage(
-                model = "https://spoonacular.com/cdn/ingredients_100x100/${ingredient.image}",
-                contentDescription = ingredient.name,
-                modifier = Modifier.size(36.dp),
-                placeholder = painterResource(id = R.drawable.picture_frame),
-                error = painterResource(id = R.drawable.stat_notify_error)
-            )
-        }
+                .size(40.dp)
+                .clip(CircleShape),
+            placeholder = painterResource(R.drawable.ic_menu_gallery),
+            error = painterResource(R.drawable.ic_menu_gallery)
+        )
 
         Spacer(modifier = Modifier.width(16.dp))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = ingredient.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() },
-                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Text(
-                text = ingredient.original,
-                style = MaterialTheme.typography.bodySmall,
+                text = "${ingredient.amount.us.value.toInt()} ${ingredient.amount.us.unit} ${ingredient.name}",
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
 }
 
-
-@Composable
-fun IngredientsList(ingredients: List<Ingredient>) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-    ) {
-        Text(
-            text = "Ingredients",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp,
-            modifier = Modifier.padding(bottom = 12.dp, top = 16.dp)
-        )
-        if (ingredients.isNotEmpty()) {
-            // Utiliser LazyColumn si la liste peut être longue
-            LazyColumn(
-                contentPadding = PaddingValues(bottom = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                items(ingredients) { ingredient ->
-                    IngredientItem(ingredient = ingredient)
-                }
-            }
-        } else {
-            Text("No ingredients listed for this recipe.")
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
 
 @Composable
 fun ErrorMessage(
@@ -460,4 +452,3 @@ fun ErrorMessage(
         }
     }
 }
-

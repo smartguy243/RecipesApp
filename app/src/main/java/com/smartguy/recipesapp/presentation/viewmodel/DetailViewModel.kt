@@ -2,12 +2,14 @@ package com.smartguy.recipesapp.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.smartguy.recipesapp.data.model.IngredientItem
 import com.smartguy.recipesapp.data.model.Recipe
 import com.smartguy.recipesapp.data.repository.RecipeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,7 +23,7 @@ class DetailViewModel @Inject constructor(
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
 
     // Загрузка деталей рецепта
-     fun loadRecipeDetails(recipeId: Int) {
+    fun loadRecipeDetails(recipeId: Int) {
         viewModelScope.launch {
             _uiState.value = DetailUiState(isLoading = true)
 
@@ -31,6 +33,7 @@ class DetailViewModel @Inject constructor(
                         recipe = recipe,
                         isLoading = false
                     )
+                    loadRecipeIngredients(recipeId)
                 },
                 onFailure = { exception ->
                     _uiState.value = DetailUiState(
@@ -39,6 +42,34 @@ class DetailViewModel @Inject constructor(
                     )
                 }
             )
+        }
+    }
+
+    fun loadRecipeIngredients(recipeId: Int) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingIngredients = true, ingredientsError = null) }
+
+            repository.getRecipeIngredients(recipeId).collect { result ->
+                result.fold(
+                    onSuccess = { ingredients ->
+                        _uiState.update {
+                            it.copy(
+                                ingredients = ingredients,
+                                isLoadingIngredients = false
+                            )
+                        }
+                    },
+                    onFailure = { exception ->
+                        _uiState.update {
+                            it.copy(
+                                isLoadingIngredients = false,
+                                ingredientsError = exception.message
+                                    ?: "Erreur lors du chargement des ingrédients"
+                            )
+                        }
+                    }
+                )
+            }
         }
     }
 
@@ -61,7 +92,10 @@ class DetailViewModel @Inject constructor(
 // Состояние экрана деталей
 data class DetailUiState(
     val recipe: Recipe? = null,
+    val ingredients: List<IngredientItem> = emptyList(),
     val isLoading: Boolean = false,
+    val isLoadingIngredients: Boolean = false,
     val error: String? = null,
+    val ingredientsError: String? = null,
     val isFavorite: Boolean = false
 )

@@ -1,9 +1,12 @@
 package com.smartguy.recipesapp.data.repository
 
+import com.smartguy.recipesapp.data.dao.IngredientDao
 import com.smartguy.recipesapp.data.dao.RecipeDao
 import com.smartguy.recipesapp.data.entity.RecipeEntity
 import com.smartguy.recipesapp.data.mappers.toEntity
+import com.smartguy.recipesapp.data.mappers.toIngredientItem
 import com.smartguy.recipesapp.data.mappers.toRecipe
+import com.smartguy.recipesapp.data.model.IngredientItem
 import com.smartguy.recipesapp.data.model.Recipe
 import com.smartguy.recipesapp.data.model.SearchResponse
 import com.smartguy.recipesapp.data.network.SpoonacularApi
@@ -15,10 +18,11 @@ import javax.inject.Singleton
 @Singleton
 class RecipeRepository @Inject constructor(
     private val api: SpoonacularApi,
-    private val recipeDao: RecipeDao
+    private val recipeDao: RecipeDao,
+    private val ingredientDao: IngredientDao
 ) {
     // Получение случайных рецептов (для главного экрана)
-    suspend fun getRandomRecipes(number: Int = 20): Flow<Result<List<Recipe>>> = flow {
+     fun getRandomRecipes(number: Int = 20): Flow<Result<List<Recipe>>> = flow {
         try {
             // Сначала пытаемся загрузить из сети
             val response = api.getRandomRecipes(
@@ -157,6 +161,32 @@ class RecipeRepository @Inject constructor(
         }
     }
 
+    fun getRecipeIngredients(recipeId: Int): Flow<Result<List<IngredientItem>>> = flow {
+        try {
+            val response = api.getRecipeIngredients(recipeId)
+            val ingredients = response.ingredients
+
+            val entities = ingredients.map { it.toEntity(recipeId) }
+            ingredientDao.insertIngredients(entities)
+
+            emit(Result.success(ingredients))
+        } catch (e: Exception) {
+            try {
+                val cachedIngredients = ingredientDao.getIngredientsByRecipeId(recipeId)
+                cachedIngredients.collect { entities ->
+                    if (entities.isNotEmpty()) {
+                        val ingredients = entities.map { it.toIngredientItem() }
+                        emit(Result.success(ingredients))
+                    } else {
+                        emit(Result.failure(e))
+                    }
+                }
+            } catch (cacheError: Exception) {
+                emit(Result.failure(e))
+            }
+        }
+    }
+
     // Управление избранными рецептами
     suspend fun toggleFavorite(recipeId: Int) {
         val recipe = recipeDao.getRecipeById(recipeId)
@@ -173,5 +203,13 @@ class RecipeRepository @Inject constructor(
     // Очистка кэша
     suspend fun clearCache() {
         recipeDao.deleteAllRecipes()
+    }
+
+    suspend fun clearIngredientsCache() {
+        ingredientDao.deleteIngredientsByRecipeId(-1)
+    }
+
+    suspend fun areIngredientsCached(recipeId: Int): Boolean {
+        return ingredientDao.hasCachedIngredients(recipeId) > 0
     }
 }

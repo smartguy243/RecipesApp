@@ -2,6 +2,7 @@ package com.smartguy.recipesapp.di
 
 import android.content.Context
 import androidx.room.Room
+import com.smartguy.recipesapp.data.dao.IngredientDao
 import com.smartguy.recipesapp.data.dao.RecipeDao
 import com.smartguy.recipesapp.data.db.AppDatabase
 import dagger.Module
@@ -23,4 +24,8 @@ object DatabaseModule {
     @Provides @Singleton
     fun provideRecipeDao(db: AppDatabase):
             RecipeDao = db.recipeDao()
+
+    @Provides @Singleton
+    fun provideIngredientDao(db: AppDatabase):
+            IngredientDao = db.ingredientDao()
 }
